@@ -24,12 +24,14 @@ public final class ServerHelmetStateManager {
         Entry current = STATES.get(player.getUUID());
         HelmetAnimationState state = current == null ? HelmetAnimationState.CLOSED : current.state();
 
+        long gameTime = player.level().getGameTime();
+
         if (action == MaskAction.OPEN) {
             if (state != HelmetAnimationState.CLOSED) return;
-            set(player, HelmetAnimationState.OPENING, player.serverLevel().getGameTime(), 0.0F);
+            set(player, HelmetAnimationState.OPENING, gameTime, 0.0F);
         } else {
             if (state != HelmetAnimationState.OPEN) return;
-            set(player, HelmetAnimationState.CLOSING, player.serverLevel().getGameTime(), 1.0F);
+            set(player, HelmetAnimationState.CLOSING, gameTime, 1.0F);
         }
     }
 
@@ -52,9 +54,11 @@ public final class ServerHelmetStateManager {
                 continue;
             }
 
-            long elapsed = player.serverLevel().getGameTime() - entry.startTick();
+            long gameTime = player.level().getGameTime();
+            long elapsed = gameTime - entry.startTick();
+
             if (entry.state() == HelmetAnimationState.OPENING && elapsed >= ANIMATION_TICKS) {
-                mapEntry.setValue(new Entry(HelmetAnimationState.OPEN, player.serverLevel().getGameTime()));
+                mapEntry.setValue(new Entry(HelmetAnimationState.OPEN, gameTime));
                 broadcast(server, HelmetStatePayload.of(player.getUUID(), HelmetAnimationState.OPEN.id(), 1.0F));
             } else if (entry.state() == HelmetAnimationState.CLOSING && elapsed >= ANIMATION_TICKS) {
                 broadcast(server, HelmetStatePayload.of(player.getUUID(), HelmetAnimationState.CLOSED.id(), 0.0F));
@@ -64,12 +68,13 @@ public final class ServerHelmetStateManager {
     }
 
     public static void syncAllTo(ServerPlayer receiver) {
-        MinecraftServer server = receiver.getServer();
+        MinecraftServer server = receiver.level().getServer();
         if (server == null) return;
 
         for (var entry : STATES.entrySet()) {
             ServerPlayer wearer = server.getPlayerList().getPlayer(entry.getKey());
             if (wearer == null) continue;
+
             float progress = progressNow(wearer, entry.getValue());
             ServerPlayNetworking.send(receiver, HelmetStatePayload.of(
                     wearer.getUUID(), entry.getValue().state().id(), progress));
@@ -86,18 +91,21 @@ public final class ServerHelmetStateManager {
 
     private static void set(ServerPlayer player, HelmetAnimationState state, long startTick, float progress) {
         STATES.put(player.getUUID(), new Entry(state, startTick));
-        MinecraftServer server = player.getServer();
+
+        MinecraftServer server = player.level().getServer();
         if (server != null) {
             broadcast(server, HelmetStatePayload.of(player.getUUID(), state.id(), progress));
         }
     }
 
     private static float progressNow(ServerPlayer player, Entry entry) {
+        long gameTime = player.level().getGameTime();
+
         return switch (entry.state()) {
             case CLOSED -> 0.0F;
             case OPEN -> 1.0F;
-            case OPENING -> clamp((player.serverLevel().getGameTime() - entry.startTick()) / (float) ANIMATION_TICKS);
-            case CLOSING -> 1.0F - clamp((player.serverLevel().getGameTime() - entry.startTick()) / (float) ANIMATION_TICKS);
+            case OPENING -> clamp((gameTime - entry.startTick()) / (float) ANIMATION_TICKS);
+            case CLOSING -> 1.0F - clamp((gameTime - entry.startTick()) / (float) ANIMATION_TICKS);
         };
     }
 
@@ -112,5 +120,6 @@ public final class ServerHelmetStateManager {
     }
 
     private record Entry(HelmetAnimationState state, long startTick) {}
+
     private ServerHelmetStateManager() {}
 }

@@ -28,7 +28,11 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    modImplementation "maven.modrinth:8BmcQJ2H:G1BvHQDL"
+    // GeckoLib 5.4.5 is split into a common API jar plus the Fabric platform jar.
+    // The common artifact is required on the Java compile classpath, while the Fabric
+    // artifact is the actual runtime mod dependency installed by the player/server.
+    compileOnly "software.bernie.geckolib:geckolib-common-${minecraft_version}:${geckolib_version}"
+    modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
 
     implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
     modRuntimeOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}:fabric-stub"
