@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "ironman:iron_man"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "ironman:iron_man"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "ironman:iron_man"
+      }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "ironman",
+  "version": "${version}",
+  "name": "Iron Man Voice Mask",
+  "description": "Voice-controlled animated Iron Man helmet using Simple Voice Chat.",
+  "authors": ["DonnieBib"],
+  "license": "MIT",
+  "environment": "*",
+  "icon": "assets/ironman/icon.png",
+  "entrypoints": {
+    "main": ["com.donniebib.ironman.IronManMod"],
+    "client": ["com.donniebib.ironman.client.IronManClient"],
+    "voicechat": ["com.donniebib.ironman.voice.IronManVoicechatPlugin"]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_version}",
+    "java": ">=21",
+    "fabric-api": ">=${fabric_version}",
+    "geckolib": ">=${geckolib_version}",
+    "voicechat_api": ">=${voicechat_api_version}",
+    "voicechat": "*"
+  }
+}

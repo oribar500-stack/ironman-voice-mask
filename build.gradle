@@ -1,0 +1,71 @@
+plugins {
+    id 'fabric-loom' version "${loom_version}"
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.maxhenkel.de/repository/public' }
+    maven { url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
+
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
+
+    implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
+    modRuntimeOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}:fabric-stub"
+    modRuntimeOnly "maven.modrinth:simple-voice-chat:fabric-${voicechat_version}"
+
+    include implementation("net.sf.phat:sphinx4-core:5prealpha")
+    include implementation("net.sf.phat:sphinx4-data:5prealpha")
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", minecraft_version
+    inputs.property "loader_version", loader_version
+    inputs.property "fabric_version", fabric_version
+    inputs.property "geckolib_version", geckolib_version
+    inputs.property "voicechat_api_version", voicechat_api_version
+
+    filesMatching("fabric.mod.json") {
+        expand(
+            "version": project.version,
+            "minecraft_version": minecraft_version,
+            "loader_version": loader_version,
+            "fabric_version": fabric_version,
+            "geckolib_version": geckolib_version,
+            "voicechat_api_version": voicechat_api_version
+        )
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+    options.encoding = 'UTF-8'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withSourcesJar()
+}
