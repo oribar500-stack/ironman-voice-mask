@@ -13,24 +13,27 @@ base {
 repositories {
     mavenCentral()
 
-    // Simple Voice Chat
     maven {
         name = 'MaxHenkel'
         url = 'https://maven.maxhenkel.de/repository/public'
     }
 
-    // GeckoLib 5.4.5 - use the exact published Fabric JAR from CurseForge.
-    // This avoids Gradle variant/metadata issues that were causing GeckoLib
-    // classes to be missing from compileClasspath.
+    // GeckoLib's official Maven.
+    // Important: ignore Gradle module metadata here and use the actual Maven
+    // artifact directly. This prevents Loom/variant selection from dropping
+    // GeckoLib from compileClasspath.
     maven {
-        name = 'CurseMaven'
-        url = 'https://cursemaven.com/'
+        name = 'GeckoLib'
+        url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
         content {
-            includeGroup 'curse.maven'
+            includeGroup 'software.bernie.geckolib'
+        }
+        metadataSources {
+            mavenPom()
+            artifact()
         }
     }
 
-    // Simple Voice Chat runtime artifact
     maven {
         name = 'Modrinth'
         url = 'https://api.modrinth.com/maven'
@@ -47,9 +50,19 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    // GeckoLib Fabric 5.4.5 for Minecraft 1.21.11
-    // CurseForge project 388172, file 7705305
-    modImplementation "curse.maven:geckolib-388172:7705305"
+    /*
+     * CRITICAL:
+     * GeckoLib is intentionally a normal compile dependency here instead of a
+     * Loom modImplementation dependency. The previous builds resolved the mod
+     * metadata but GeckoLib's Java classes never reached compileClasspath,
+     * producing 35 "package com.geckolib ... does not exist" errors.
+     *
+     * The final Iron Man JAR does NOT bundle GeckoLib. Players install the
+     * normal GeckoLib 5.4.5 Fabric mod separately, as fabric.mod.json requires.
+     */
+    implementation("software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}") {
+        transitive = false
+    }
 
     implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
     modRuntimeOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}:fabric-stub"

@@ -1,0 +1,45 @@
+name: Build Iron Man Mod
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.5.0'
+
+      - name: Verify GeckoLib on compile classpath
+        run: |
+          gradle dependencyInsight \
+            --dependency geckolib-fabric-1.21.11 \
+            --configuration compileClasspath
+
+      - name: Build mod
+        run: gradle clean build --stacktrace
+
+      - name: Upload final mod JAR
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ironman-voice-mask
+          path: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+          if-no-files-found: error
