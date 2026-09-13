@@ -1,12 +1,12 @@
 package com.donniebib.ironman.item;
 
 import com.donniebib.ironman.client.IronManHelmetRenderer;
-import com.geckolib.animatable.GeoItem;
-import com.geckolib.animatable.client.GeoRenderProvider;
-import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animatable.manager.AnimatableManager;
-import com.geckolib.renderer.GeoArmorRenderer;
-import com.geckolib.util.GeckoLibUtil;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.animatable.client.GeoRenderProvider;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animatable.manager.AnimatableManager;
+import software.bernie.geckolib.renderer.GeoArmorRenderer;
+import software.bernie.geckolib.util.GeckoLibUtil;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,8 +27,14 @@ public final class IronManHelmetItem extends Item implements GeoItem {
 
             @Override
             public GeoArmorRenderer<?, ?> getGeoArmorRenderer(ItemStack itemStack, EquipmentSlot equipmentSlot) {
-                if (equipmentSlot != EquipmentSlot.HEAD) return null;
-                if (renderer == null) renderer = new IronManHelmetRenderer(IronManHelmetItem.this);
+                if (equipmentSlot != EquipmentSlot.HEAD) {
+                    return null;
+                }
+
+                if (renderer == null) {
+                    renderer = new IronManHelmetRenderer(IronManHelmetItem.this);
+                }
+
                 return renderer;
             }
         });
@@ -36,8 +42,7 @@ public final class IronManHelmetItem extends Item implements GeoItem {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        // The synced state machine drives the faceplate pose directly in the armor renderer.
-        // The accompanying GeckoLib animation JSON remains editable in Blockbench/GeckoLib.
+        // The synchronized helmet state directly drives the faceplate bone.
     }
 
     @Override

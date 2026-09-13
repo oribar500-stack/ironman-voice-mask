@@ -27,15 +27,6 @@ repositories {
     }
 }
 
-/*
- * GeckoLib 5.4.5 for Fabric / Minecraft 1.21.11
- *
- * Previous CI builds resolved GeckoLib metadata but did not put the actual
- * GeckoLib classes on compileClasspath. To remove Maven/Loom variant ambiguity,
- * this project downloads the exact official Modrinth release JAR before the
- * dependency graph is created, verifies that GeoArmorRenderer is really inside
- * it, and then gives that concrete local JAR directly to Loom.
- */
 def localDepsDir = file("${rootDir}/.gradle/ironman-local-deps")
 def geckoJar = new File(localDepsDir, "geckolib-fabric-1.21.11-5.4.5.jar")
 def geckoUrl = "https://cdn.modrinth.com/data/8BmcQJ2H/versions/G1BvHQDL/geckolib-fabric-1.21.11-5.4.5.jar"
@@ -57,7 +48,10 @@ if (!geckoJar.exists() || geckoJar.length() < 100_000L) {
 
 def geckoZip = new java.util.zip.ZipFile(geckoJar)
 try {
-    def requiredEntry = "com/geckolib/renderer/GeoArmorRenderer.class"
+    // GeckoLib 5.4.5 still uses the software.bernie.geckolib Java package.
+    // The previous source imported the newer com.geckolib namespace.
+    def requiredEntry = "software/bernie/geckolib/renderer/GeoArmorRenderer.class"
+
     if (geckoZip.getEntry(requiredEntry) == null) {
         def candidates = []
         def entries = geckoZip.entries()
@@ -67,12 +61,14 @@ try {
                 candidates.add(name)
             }
         }
+
         throw new GradleException(
             "Downloaded GeckoLib JAR does not contain ${requiredEntry}. " +
             "Found renderer candidates: ${candidates}"
         )
     }
-    logger.lifecycle("Verified GeckoLib JAR contains com.geckolib.renderer.GeoArmorRenderer")
+
+    logger.lifecycle("Verified GeckoLib 5.4.5 package namespace: software.bernie.geckolib")
 } finally {
     geckoZip.close()
 }
@@ -84,8 +80,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    // Exact, already-verified GeckoLib JAR. Loom remaps it for the dev compile
-    // classpath; the built Iron Man mod does not bundle GeckoLib itself.
+    // Concrete, verified GeckoLib Fabric JAR.
     modImplementation files(geckoJar)
 
     implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"

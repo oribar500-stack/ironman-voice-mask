@@ -1,11 +1,11 @@
 package com.donniebib.ironman.client;
 
 import com.donniebib.ironman.item.IronManHelmetItem;
-import com.geckolib.constant.dataticket.DataTicket;
-import com.geckolib.renderer.GeoArmorRenderer;
-import com.geckolib.renderer.base.BoneSnapshots;
-import com.geckolib.renderer.base.GeoRenderState;
-import com.geckolib.renderer.base.RenderPassInfo;
+import software.bernie.geckolib.constant.dataticket.DataTicket;
+import software.bernie.geckolib.renderer.GeoArmorRenderer;
+import software.bernie.geckolib.renderer.base.BoneSnapshots;
+import software.bernie.geckolib.renderer.base.GeoRenderState;
+import software.bernie.geckolib.renderer.base.RenderPassInfo;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 
 public final class IronManHelmetRenderer extends GeoArmorRenderer<IronManHelmetItem, HumanoidRenderState> {
@@ -21,12 +21,11 @@ public final class IronManHelmetRenderer extends GeoArmorRenderer<IronManHelmetI
                                           HumanoidRenderState renderState, float partialTick) {
         super.captureDefaultRenderState(animatable, renderData, renderState, partialTick);
 
-        // GeckoLib injects GeoRenderState into Minecraft render-state classes at runtime.
-        // Using the explicit interface cast keeps this consumer code robust even when the
-        // compiler does not expose injected methods directly on HumanoidRenderState.
         GeoRenderState geoState = (GeoRenderState) (Object) renderState;
-        geoState.addGeckolibData(MASK_PROGRESS,
-                ClientHelmetStateManager.getOpenProgress(renderData.entity().getUUID(), partialTick));
+        geoState.addGeckolibData(
+                MASK_PROGRESS,
+                ClientHelmetStateManager.getOpenProgress(renderData.entity().getUUID(), partialTick)
+        );
     }
 
     @Override
@@ -41,7 +40,7 @@ public final class IronManHelmetRenderer extends GeoArmorRenderer<IronManHelmetI
                 .setTranslateX(pose.x)
                 .setTranslateY(pose.y)
                 .setTranslateZ(pose.z)
-                .setRotX((float) Math.toRadians(pose.rotXDegrees)));
+                .setRotX((float)Math.toRadians(pose.rotXDegrees)));
     }
 
     private static Pose poseFor(float p) {
@@ -49,10 +48,12 @@ public final class IronManHelmetRenderer extends GeoArmorRenderer<IronManHelmetI
             float t = smooth(p / 0.125F);
             return lerp(new Pose(0, 0, 0, 0), new Pose(0, 0, -0.8F, 0), t);
         }
+
         if (p <= 0.375F) {
             float t = smooth((p - 0.125F) / 0.25F);
             return lerp(new Pose(0, 0, -0.8F, 0), new Pose(0, 0.8F, -1.2F, -20F), t);
         }
+
         if (p <= 0.75F) {
             float t = smooth((p - 0.375F) / 0.375F);
             return lerp(new Pose(0, 0.8F, -1.2F, -20F), new Pose(0, 3.4F, -0.2F, -70F), t);

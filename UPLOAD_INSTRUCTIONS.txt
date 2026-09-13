@@ -1,0 +1,19 @@
+IRON MAN VOICE MASK - GECKOLIB 5.4.5 NAMESPACE FIX
+==================================================
+
+The GitHub log proved the exact GeckoLib 5.4.5 JAR uses:
+    software.bernie.geckolib.*
+
+The previous source incorrectly imported:
+    com.geckolib.*
+
+Upload these 3 replacements, preserving paths:
+
+1. build.gradle
+2. src/main/java/com/donniebib/ironman/client/IronManHelmetRenderer.java
+3. src/main/java/com/donniebib/ironman/item/IronManHelmetItem.java
+
+Do NOT upload the ZIP itself into the repo.
+Extract it first, then upload/overwrite the files.
+
+After commit, a new GitHub Actions run should start automatically.
